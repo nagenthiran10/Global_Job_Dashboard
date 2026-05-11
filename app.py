@@ -55,10 +55,6 @@ st.markdown("""
         max-height: 46px !important;
         overflow-y: auto !important;
     }
-    div[data-baseweb="select"] > div:focus-within {
-        border-color: #38bdf8 !important;
-        box-shadow: 0 0 8px rgba(56, 189, 248, 0.3) !important;
-    }
     
     /* Title styling */
     .main-title {
@@ -69,6 +65,28 @@ st.markdown("""
         margin-top: -20px;
         margin-bottom: 10px;
         letter-spacing: -0.5px;
+    }
+
+    /* --- MOBILE RESPONSIVENESS FIXES --- */
+    @media (max-width: 768px) {
+        /* Removes huge margins on small screens */
+        .block-container {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+            max-width: 100% !important;
+        }
+        
+        /* Forces the 3 charts in a row to stack vertically on phone */
+        div[data-testid="column"] {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            padding-bottom: 20px !important;
+        }
+
+        /* Adjusts title size so it doesn't look too huge on phone */
+        .main-title {
+            font-size: 24px !important;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
