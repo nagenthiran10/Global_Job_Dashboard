@@ -243,23 +243,47 @@ if is_mobile:
         fig3.update_layout(**chart_layout, showlegend=False)
         st.plotly_chart(fig3, use_container_width=True)
 
-    # 4. Scatter
+    #Scatter Plot
     df_scat_grp = df_filtered.groupby("job_title_short")[['salary_hour_avg', 'salary_year_avg']].median().reset_index()
     df_scat_grp = df_scat_grp.dropna(subset=['salary_hour_avg', 'salary_year_avg'])
+
     if not df_scat_grp.empty:
+        # Formatting labels for the hover tooltips
         df_scat_grp['Yearly_Label'] = df_scat_grp['salary_year_avg'].apply(
             lambda x: f"${int(x/1000)}k" if x >= 1000 else f"${int(x)}")
         df_scat_grp['Hourly_Label'] = df_scat_grp['salary_hour_avg'].apply(lambda x: f"${int(x)}")
+        
+        # Create the scatter plot with a trendline
         fig4 = px.scatter(df_scat_grp, x="salary_year_avg", y="salary_hour_avg",
-                          color="job_title_short",
-                          custom_data=['job_title_short', 'Yearly_Label', 'Hourly_Label'],
-                          height=CH, trendline="ols", trendline_scope="overall",
-                          title="Yearly vs Hourly Median Salary",
-                          color_discrete_sequence=mono_colors)
-        fig4.update_traces(hovertemplate="<b>%{customdata[0]}</b><br>"
-                           "Hourly: %{customdata[2]}<br>Yearly: %{customdata[1]}<extra></extra>")
-        fig4.update_layout(**chart_layout, showlegend=False,
-                           xaxis_title="Median Yearly", yaxis_title="Median Hourly")
+                        color="job_title_short",
+                        custom_data=['job_title_short', 'Yearly_Label', 'Hourly_Label'],
+                        height=CH, 
+                        trendline="ols", 
+                        trendline_scope="overall",
+                        title="Yearly vs Hourly Median Salary",
+                        color_discrete_sequence=mono_colors)
+
+        # Apply your premium custom hover only to the data points (markers)
+        fig4.update_traces(
+            hovertemplate="<b>%{customdata[0]}</b><br>Hourly: %{customdata[2]}<br>Yearly: %{customdata[1]}<extra></extra>",
+            selector=dict(mode='markers')
+        )
+
+        # THE NUCLEAR FIX: Loop through all traces and disable hover for the trendline
+        for trace in fig4.data:
+            # If it's the trendline (it won't have 'markers' mode), we kill the hover
+            if 'markers' not in str(trace.mode):
+                trace.hoverinfo = 'skip'
+                trace.hovertemplate = None
+                trace.hoverlabel = dict(namelength=0) # Removes the "trace name" box
+
+        # Update Layout
+        fig4.update_layout(**chart_layout, 
+                        showlegend=False,
+                        xaxis_title="Median Yearly", 
+                        yaxis_title="Median Hourly",
+                        hovermode='closest') # Ensures hover only triggers on the dot you touch
+        
         st.plotly_chart(fig4, use_container_width=True)
 
     # 5. Map
@@ -292,7 +316,7 @@ if is_mobile:
 
 
 # ════════════════════════════════
-#  DESKTOP LAYOUT  (unchanged)
+#  DESKTOP LAYOUT
 # ════════════════════════════════
 else:
 
@@ -380,9 +404,21 @@ else:
                               height=CH, trendline="ols", trendline_scope="overall",
                               title="Yearly vs Hourly Median Salary",
                               color_discrete_sequence=mono_colors)
-            fig4.update_traces(hovertemplate="<b>Job Title</b>: %{customdata[0]}<br>"
-                               "<b>Median Hourly</b>: %{customdata[2]}<br>"
-                               "<b>Median Yearly</b>: %{customdata[1]}<extra></extra>")
+            # Apply hover only to scatter markers, not the trendline
+            fig4.update_traces(
+                hovertemplate="<b>Job Title</b>: %{customdata[0]}<br>"
+                              "<b>Median Hourly</b>: %{customdata[2]}<br>"
+                              "<b>Median Yearly</b>: %{customdata[1]}<extra></extra>",
+                selector=dict(mode='markers')
+            )
+
+            # Disable hover on trendline trace
+            for trace in fig4.data:
+                if 'markers' not in str(trace.mode):
+                    trace.hoverinfo = 'skip'
+                    trace.hovertemplate = None
+                    trace.hoverlabel = dict(namelength=0)
+
             fig4.update_layout(**chart_layout, showlegend=False,
                                xaxis_title="Median Yearly", yaxis_title="Median Hourly",
                                hovermode="closest")
