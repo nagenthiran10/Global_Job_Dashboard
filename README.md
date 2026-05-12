@@ -190,16 +190,6 @@ statsmodels
 
 ---
 
-## 📸 Preview
-
-![Dashboard](images/preview.png)
-
-| Desktop | Mobile |
-|---|---|
-| 3×2 chart grid with KPI row | Stacked charts with 2×2 KPI grid |
-
----
-
 ## 🙌 Author
 
 Built by **Nagenthiran** · [GitHub](https://github.com/nagenthiran10)
